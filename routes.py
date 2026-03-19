@@ -259,3 +259,30 @@ def delete_book(book_id):
 def view_book(book_id):
     book = Book.query.get_or_404(book_id)
     return render_template('view_book.html', book=book)
+@app.route('/my-books')
+@login_required
+def my_books():
+    # Получаем параметры сортировки из URL
+    sort_by = request.args.get('sort_by', 'date_added')  # По умолчанию — по дате добавления
+    order = request.args.get('order', 'desc')  # По умолчанию — убывание
+
+    # Определяем поле для сортировки
+    sort_field = None
+    if sort_by == 'title':
+        sort_field = Book.title
+    elif sort_by == 'author':
+        sort_field = Book.author
+    elif sort_by == 'year_published':
+        sort_field = Book.year_published
+    elif sort_by == 'genre':
+        sort_field = Book.genre
+    else:
+        sort_field = Book.date_added
+
+    # Применяем порядок сортировки
+    if order == 'desc':
+        books = Book.query.order_by(sort_field.desc()).all()
+    else:
+        books = Book.query.order_by(sort_field.asc()).all()
+
+    return render_template('my_books.html', books=books, sort_by=sort_by, order=order)
