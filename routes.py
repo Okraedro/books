@@ -68,3 +68,76 @@ def login():
             else:
                 return redirect(url_for('books'))
     return render_template('login.html')
+from flask import request, jsonify
+from models import db, Book, Category
+
+@app.route('/api/admin/books', methods=['POST'])
+@login_required
+def add_book():
+  if current_user.role != 'admin':
+    return jsonify({'success': False, 'error': 'Доступ запрещён'}), 403
+
+  try:
+    title = request.form['title']
+    author = request.form['author']
+    year = int(request.form['year'])
+    category_id = int(request.form['category_id'])
+    price = float(request.form['price'])
+    rental_price = float(request.form['rental_price'])
+    is_available = 'is_available' in request.form
+    stock_quantity = int(request.form.get('stock_quantity', 0))
+
+    book = Book(
+      title=title,
+      author=author,
+      year=year,
+      category_id=category_id,
+      price=price,
+      rental_price=rental_price,
+      is_available=is_available,
+      stock_quantity=stock_quantity
+    )
+    db.session.add(book)
+    db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Книга добавлена'})
+  except Exception as e:
+    db.session.rollback()
+    return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/admin/books/<int:book_id>', methods=['PUT'])
+@login_required
+def edit_book(book_id):
+  if current_user.role != 'admin':
+    return jsonify({'success': False, 'error': 'Доступ запрещён'}), 403
+
+  book = Book.query.get_or_404(book_id)
+  try:
+    book.title = request.form['title']
+    book.author = request.form['author']
+    book.year = int(request.form['year'])
+    book.category_id = int(request.form['category_id'])
+    book.price = float(request.form['price'])
+    book.rental_price = float(request.form['rental_price'])
+    book.is_available = 'is_available' in request.form
+    book.stock_quantity = int(request.form.get('stock_quantity', 0))
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Книга обновлена'})
+  except Exception as e:
+    db.session.rollback()
+    return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/admin/books/<int:book_id>', methods=['DELETE'])
+@login_required
+def delete_book(book_id):
+  if current_user.role != 'admin':
+    return jsonify({'success': False, 'error': 'Доступ запрещён'}), 403
+
+  book = Book.query.get_or_404(book_id)
+  try:
+    db.session.delete(book)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Книга удалена'})
+  except Exception as e:
+    db.session.rollback()
+    return jsonify({'success': False, 'error': str(e)}), 500
