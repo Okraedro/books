@@ -58,4 +58,44 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+  // Обработчик клика по карточке книги для перехода на страницу просмотра
+document.querySelectorAll('.card').forEach(card => {
+  // Исключаем кнопки внутри карточки
+  if (!card.querySelector('a.btn, button')) {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function() {
+      const bookId = this.querySelector('.delete-btn')?.getAttribute('data-book-id');
+      if (bookId) {
+        window.location.href = `/book/${bookId}`;
+      }
+    });
+  }
+});
+
+// Остальной код JavaScript остаётся без изменений
+document.querySelectorAll('.delete-btn').forEach(button => {
+  button.addEventListener('click', function(e) {
+    e.stopPropagation(); // Останавливаем всплытие события
+    const bookId = this.getAttribute('data-book-id');
+    if (confirm('Вы уверены, что хотите удалить эту книгу из коллекции?')) {
+      fetch(`/delete-book/${bookId}`, {
+        method: 'GET'
+      })
+      .then(response => {
+        if (response.ok) {
+          const card = this.closest('.col-md-4');
+          card.style.opacity = '0.5';
+          setTimeout(() => card.remove(), 300);
+        } else {
+          alert('Ошибка при удалении книги');
+        }
+      })
+      .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при удалении книги');
+      });
+    }
+  });
+});
+
 });
