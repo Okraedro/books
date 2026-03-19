@@ -157,5 +157,111 @@ document.addEventListener('DOMContentLoaded', function() {
   // Инициализируем кнопки удаления при загрузке
   initializeDeleteButtons();
 });
+document.addEventListener('DOMContentLoaded', function() {
+  const sortForm = document.getElementById('sortForm');
+  const booksContainer = document.querySelector('.row');
+  const notification = document.createElement('div');
+  notification.className = 'sort-notification';
+  document.body.appendChild(notification);
+
+  function showNotification(message) {
+    notification.textContent = message;
+    notification.classList.add('show');
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, 2000);
+  }
+
+  if (sortForm) {
+    sortForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const sortBy = document.getElementById('sort_by').value;
+      const order = document.getElementById('order').value;
+
+      // Добавляем индикатор загрузки
+      booksContainer.classList.add('loading');
+      showNotification(`Сортировка по ${getSortLabel(sortBy)} ${order === 'asc' ? 'по возрастанию' : 'по убыванию'}`);
+
+      fetch(`/my-books?sort_by=${sortBy}&order=${order}`)
+        .then(response => response.text())
+        .then(html => {
+          // Обновляем только область с книгами
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const newBooksContainer = doc.querySelector('.row');
+
+          if (newBooksContainer) {
+            booksContainer.innerHTML = newBooksContainer.innerHTML;
+            // Переинициализируем обработчики удаления
+            initializeDeleteButtons();
+            // Обновляем обработчики просмотра
+            initializeViewButtons();
+          }
+        })
+        .catch(error => {
+          console.error('Ошибка при сортировке:', error);
+          alert('Произошла ошибка при сортировке книг');
+        })
+        .finally(() => {
+          // Убираем индикатор загрузки
+          booksContainer.classList.remove('loading');
+        });
+    });
+  }
+
+  // Функция для получения читаемого названия поля сортировки
+  function getSortLabel(field) {
+    const labels = {
+      'date_added': 'дате добавления',
+      'title': 'названию',
+      'author': 'автору',
+      'year_published': 'году издания',
+      'genre': 'жанру'
+    };
+    return labels[field] || field;
+  }
+
+  // Функция для переинициализации кнопок удаления
+  function initializeDeleteButtons() {
+    document.querySelectorAll('.delete-btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const bookId = this.getAttribute('data-book-id');
+        if (confirm('Вы уверены, что хотите удалить эту книгу из коллекции?')) {
+          fetch(`/delete-book/${bookId}`, {
+            method: 'GET'
+          })
+          .then(response => {
+            if (response.ok) {
+              const card = this.closest('.col-md-4');
+              card.style.opacity = '0.5';
+              setTimeout(() => card.remove(), 300);
+            } else {
+              alert('Ошибка при удалении книги');
+            }
+          })
+          .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при удалении книги');
+          });
+        }
+      });
+    });
+  }
+
+  // Функция для переинициализации кнопок просмотра
+  function initializeViewButtons() {
+    document.querySelectorAll('.btn-outline-info').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    });
+  }
+
+  // Инициализируем кнопки удаления и просмотра при загрузке
+  initializeDeleteButtons();
+  initializeViewButtons();
+});
 
 });
