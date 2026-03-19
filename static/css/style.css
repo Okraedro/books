@@ -1,1 +1,25 @@
+.book-cover {
+  border: 1px solid #ddd;
+  text-align: center;
+  color: #6c757d;
+}
+
+.book-card {
+  transition: transform 0.2s;
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.buy-btn, .rent-btn {
+  margin-right: 5px;
+}
+
+.jumbotron {
+  background-color: #f8f9fa;
+  padding: 3rem 2rem;
+  text-align: center;
+}
 
