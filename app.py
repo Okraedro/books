@@ -25,4 +25,5 @@ def create_tables():
         for name in categories:
             db.session.add(Category(name=name))
         db.session.commit()
+from routes import *
 
