@@ -430,3 +430,43 @@ def admin_rentals():
     # Получаем все активные аренды с информацией о пользователях
     rentals = RentalTransaction.query.filter_by(is_active=True).all()
     return render_template('admin/rentals.html', rentals=rentals)
+@app.route('/admin/rental/<int:rental_id>/send-reminder', methods=['POST'])
+@login_required
+def send_rental_reminder(rental_id):
+    if not current_user.is_admin:
+        return jsonify({'error': 'Доступ запрещён'}), 403
+
+    rental = RentalTransaction.query.get_or_404(rental_id)
+
+    # Создаём напоминание
+    reminder = RentalReminder(
+        user_id=rental.user_id,
+        book_id=rental.book_id,
+        rental_id=rental.id,
+        reminder_type='warning'
+    )
+    db.session.add(reminder)
+    db.session.commit()
+
+    # Здесь должна быть логика отправки email/уведомления пользователю
+    # Например, через Flask‑Mail или другой сервис
+    send_email(
+        subject='Напоминание об окончании срока аренды',
+        recipient=rental.user.email,
+        body=f'Срок аренды книги "{rental.book.title}" истекает {rental.end_date.strftime("%d.%m.%Y")}.'
+    )
+
+    reminder.is_sent = True
+    db.session.commit()
+
+    return jsonify({'success': 'Напоминание отправлено'})
+
+@app.route('/admin/reminders')
+@login_required
+def admin_reminders():
+    if not current_user.is_admin:
+        flash('Доступ запрещён', 'error')
+        return redirect(url_for('my_books'))
+
+    reminders = RentalReminder.query.order_by(RentalReminder.sent_date.desc()).all()
+    return render_template('admin/reminders.html', reminders=reminders)
