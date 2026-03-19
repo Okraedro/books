@@ -265,3 +265,109 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 });
+if (sortForm) {
+  sortForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const sortBy = document.getElementById('sort_by').value;
+    const order = document.getElementById('order').value;
+
+    // Добавляем индикатор загрузки
+    booksContainer.classList.add('loading');
+    showNotification(`Сортировка по ${getSortLabel(sortBy)} ${order === 'asc' ? 'по возрастанию' : 'по убыванию'}`);
+
+    fetch(`/my-books?sort_by=${sortBy}&order=${order}`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Обновляем только область с книгами
+        booksContainer.innerHTML = data.html;
+
+        // Переинициализируем обработчики после обновления контента
+        initializeDeleteButtons();
+        initializeViewButtons();
+      })
+      .catch(error => {
+        console.error('Ошибка при сортировке:', error);
+        alert('Произошла ошибка при сортировке книг');
+      })
+      .finally(() => {
+        // Убираем индикатор загрузки
+        booksContainer.classList.remove('loading');
+      });
+  });
+}
+
+// Функция для получения читаемого названия поля сортировки
+function getSortLabel(field) {
+  const labels = {
+    'date_added': 'дате добавления',
+    'title': 'названию',
+    'author': 'автору',
+    'year_published': 'году издания',
+    'genre': 'жанру'
+  };
+  return labels[field] || field;
+}
+
+// Функция для показа уведомлений
+function showNotification(message) {
+  notification.textContent = message;
+  notification.classList.add('show');
+  setTimeout(() => {
+    notification.classList.remove('show');
+  }, 2000);
+}
+
+// Функция для переинициализации кнопок удаления
+function initializeDeleteButtons() {
+  document.querySelectorAll('.delete-btn').forEach(button => {
+    // Удаляем старые обработчики, чтобы избежать дублирования
+    button.replaceWith(button.cloneNode(true));
+    // Находим клонированную кнопку и добавляем новый обработчик
+    const newButton = button.parentNode.querySelector(
+      (`[data-book-id="${button.getAttribute('data-book-id')}"]`);
+    newButton.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const bookId = this.getAttribute('data-book-id');
+      if (confirm('Вы уверены, что хотите удалить эту книгу из коллекции?')) {
+        fetch(`/delete-book/${bookId}`, {
+          method: 'GET'
+        })
+        .then(response => {
+          if (response.ok) {
+            const card = this.closest('.col-md-4');
+            card.style.opacity = '0.5';
+            setTimeout(() => card.remove(), 300);
+          } else {
+            alert('Ошибка при удалении книги');
+          }
+        })
+        .catch(error => {
+          console.error('Ошибка:', error);
+          alert('Произошла ошибка при удалении книги');
+        });
+      }
+    });
+  });
+}
+
+// Функция для переинициализации кнопок просмотра
+function initializeViewButtons() {
+  document.querySelectorAll('.btn-outline-info').forEach(button => {
+    // Аналогично удаляем старые обработчики
+    button.replaceWith(button.cloneNode(true));
+    const newButton = button.parentNode.querySelector
+      (`a[href="${button.getAttribute('href')}"]`);
+    newButton.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  });
+}
+
+// Инициализируем кнопки удаления и просмотра при загрузке
+initializeDeleteButtons();
+initializeViewButtons();
