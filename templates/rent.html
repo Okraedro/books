@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Аренда книги</h2>
+  <div class="card mb-4">
+    <div class="row no-gutters">
+      <div class="col-md-4">
+        {% if book.cover_url %}
+          <img src="{{ book.cover_url }}" class="card-img" alt="{{ book.title }}">
+        {% else %}
+          <div class="card-img text-center p-5 bg-secondary text-white">Обложка отсутствует</div>
+        {% endif %}
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h3 class="card-title">{{ book.title }}</h3>
+          <p class="card-text"><strong>Автор:</strong> {{ book.author }}</p>
+          <p class="card-text"><strong>Цена книги:</strong> ${{ book.price }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form method="POST">
+    <div class="form-group">
+      <label for="rental_period">Выберите срок аренды:</label>
+      <select class="form-control" id="rental_period" name="rental_period" required>
+        <option value="2_weeks">2 недели (15 % от стоимости)</option>
+        <option value="1_month">1 месяц (30 % от стоимости)</option>
+        <option value="3_months">3 месяца (70 % от стоимости)</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Арендовать книгу</button>
+    <a href="{{ url_for('view_book', book_id=book.id) }}" class="btn btn-secondary">Отмена</a>
+  </form>
+</div>
+{% endblock %}
