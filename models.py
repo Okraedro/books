@@ -111,3 +111,34 @@ if __name__ == '__main__':
         db.create_all()
         create_sample_books()
         print("База данных создана и заполнена тестовыми данными!")
+from datetime import datetime, timedelta
+from flask_sqlalchemy import SQLAlchemy
+
+
+db = SQLAlchemy()
+
+class RentalTransaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
+    transaction_type = db.Column(db.String(20), nullable=False)  # 'purchase' или 'rental'
+    rental_period = db.Column(db.String(20))  # '2_weeks', '1_month', '3_months' для аренды
+    start_date = db.Column(db.DateTime, default=datetime.utcnow)
+    end_date = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean, default=True)
+    price = db.Column(db.Float)
+
+    # Связи
+    user = db.relationship('User', backref=db.backref('rentals', lazy=True))
+    book = db.relationship('Book', backref=db.backref('rentals', lazy=True))
+
+    def calculate_end_date(self):
+        """Расчёт даты окончания аренды в зависимости от периода"""
+        if self.rental_period == '2_weeks':
+            self.end_date = self.start_date + timedelta(weeks=2)
+        elif self.rental_period == '1_month':
+            self.end_date = self.start_date + timedelta(days=30)
+        elif self.rental_period == '3_months':
+            self.end_date = self.start_date + timedelta(days=90)
+        else:
+            self.end_date = None
