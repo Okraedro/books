@@ -1,7 +1,61 @@
 {% extends "base.html" %}
 
+
 {% block content %}
 <h2>Каталог книг</h2>
 
 <!-- Фильтры -->
-<div class="row mb-3
+<div class="row mb-3">
+  <div class="col-md-3">
+    <label for="categoryFilter">Категория:</label>
+    <select id="categoryFilter" class="form-control">
+      <option value="">Все категории</option>
+      {% for category in categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label for="sortFilter">Сортировка:</label>
+    <select id="sortFilter" class="form-control">
+      <option value="title">По названию</option>
+      <option value="author">По автору</option>
+      <option value="year">По году</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button id="applyFilters" class="btn btn-primary mt-3">Применить</button>
+  </div>
+</div>
+
+<!-- Карточки книг -->
+<div id="booksContainer" class="row">
+  {% for book in books %}
+  <div class="col-md-4 mb-4 book-card" data-category="{{ book.category_id }}" data-author="{{ book.author }}" data-year="{{ book.year }}">
+    <div class="card">
+      <!-- Заглушка для обложки -->
+      <div class="card-img-top book-cover" style="background-color: #e9ecef; height: 200px; display: flex; align-items: center; justify-content: center;">
+        <span>Обложка книги</span>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">{{ book.title }}</h5>
+        <p class="card-text">
+          <strong>Автор:</strong> {{ book.author }}<br>
+          <strong>Год:</strong> {{ book.year }}<br>
+          <strong>Категория:</strong> {{ book.category.name if book.category else 'Не указана' }}<br>
+          <strong>Цена:</strong> {{ '%.2f'|format(book.price) }} руб.<br>
+          <strong>Аренда:</strong> {{ '%.2f'|format(book.rental_price) }} руб./мес
+        </p>
+        {% if book.is_available %}
+          <p><span class="badge badge-success">В наличии ({{ book.stock_quantity }} шт.)</span></p>
+          <button class="btn btn-outline-primary btn-sm buy-btn" data-book-id="{{ book.id }}">Купить</button>
+          <button class="btn btn-outline-secondary btn-sm rent-btn" data-book-id="{{ book.id }}">Арендовать</button>
+        {% else %}
+          <p><span class="badge badge-danger">Нет в наличии</span></p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
