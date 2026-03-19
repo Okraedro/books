@@ -286,3 +286,39 @@ def my_books():
         books = Book.query.order_by(sort_field.asc()).all()
 
     return render_template('my_books.html', books=books, sort_by=sort_by, order=order)
+from flask import request, jsonify
+
+@app.route('/my-books')
+@login_required
+def my_books():
+    # Получаем параметры сортировки из URL
+    sort_by = request.args.get('sort_by', 'date_added')
+    order = request.args.get('order', 'desc')
+
+    # Определяем поле для сортировки
+    sort_field = None
+    if sort_by == 'title':
+        sort_field = Book.title
+    elif sort_by == 'author':
+        sort_field = Book.author
+    elif sort_by == 'year_published':
+        sort_field = Book.year_published
+    elif sort_by == 'genre':
+        sort_field = Book.genre
+    else:
+        sort_field = Book.date_added
+
+    # Применяем порядок сортировки
+    if order == 'desc':
+        books = Book.query.order_by(sort_field.desc()).all()
+    else:
+        books = Book.query.order_by(sort_field.asc()).all()
+
+    # Если это AJAX‑запрос, возвращаем только HTML для списка книг
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Рендерим только часть с книгами
+        from flask import render_template_string
+        books_html = render_template('books_list.html', books=books)
+        return jsonify({'html': books_html})
+
+    return render_template('my_books.html', books=books, sort_by=sort_by, order=order)
