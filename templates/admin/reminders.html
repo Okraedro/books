@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>История напоминаний (админ)</h2>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Пользователь</th>
+      <th>Книга</th>
+      <th>Тип напоминания</th>
+      <th>Дата отправки</th>
+      <th>Статус</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for reminder in reminders %}
+    <tr>
+      <td>{{ reminder.user.username }}</td>
+      <td>{{ reminder.book.title }}</td>
+      <td>
+        <span class="badge
+          {% if reminder.reminder_type == 'warning' %}badge-warning
+          {% else %}badge-danger{% endif %}">
+          {{ 'Предупреждение' if reminder.reminder_type == 'warning' else 'Просрочка' }}
+        </span>
+      </td>
+      <td>{{ reminder.sent_date.strftime('%d.%m.%Y %H:%M') }}</td>
+      <td>
+        <span class="badge
+          {% if reminder.is_sent %}badge-success{% else %}badge-secondary{% endif %}">
+          {{ 'Отправлено' if reminder.is_sent else 'Не отправлено' }}
+        </span>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
