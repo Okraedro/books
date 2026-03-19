@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Добавить новую книгу</h2>
+
+<form method="POST">
+  <div class="form-row">
+    <div class="form-group col-md-8">
+      <label for="title">Название книги:</label>
+      <input type="text" class="form-control" id="title" name="title" required>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="author">Автор:</label>
+      <input type="text" class="form-control" id="author" name="author" required>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <label for="genre">Жанр:</label>
+      <input type="text" class="form-control" id="genre" name="genre">
+    </div>
+    <div class="form-group col-md-4">
+      <label for="year_published">Год издания:</label>
+      <input type="number" class="form-control" id="year_published" name="year_published">
+    </div>
+    <div class="form-group col-md-4">
+      <label for="pages">Количество страниц:</label>
+      <input type="number" class="form-control" id="pages" name="pages">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <label for="rating">Рейтинг (1–5):</label>
+      <select class="form-control" id="rating" name="rating">
+        <option value="0">Не оценивать</option>
+        <option value="1.0">1 - Плохо</option>
+        <option value="2.0">2 - Ниже среднего</option>
+        <option value="3.0">3 - Средне</option>
+        <option value="4.0">4 - Хорошо</option>
+        <option value="5.0" selected>5 - Отлично</option>
+      </select>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="status">Статус чтения:</label>
+      <select class="form-control" id="status" name="status">
+        <option value="not_started">Не начата</option>
+        <option value="reading">Читаю сейчас</option>
+        <option value="finished">Прочитана</option>
+        <option value="abandoned">Заброшена</option>
+      </select>
+    </div>
+    <div class="form-group col-md-4">
+      <div class="form-check mt-4">
+        <input type="checkbox" class="form-check-input" id="is_favorite" name="is_favorite">
+        <label class="form-check-label" for="is_favorite">Любимая книга</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="cover_url">Ссылка на обложку:</label>
+    <input type="url" class="form-control" id="cover_url" name="cover_url" placeholder="https://...">
+  </div>
+
+  <div class="form-group">
+    <label for="notes">Личные заметки:</label>
+    <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-success">Добавить книгу в коллекцию</button>
+  <a href="{{ url_for('my_books') }}" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}
