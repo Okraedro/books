@@ -25,6 +25,7 @@ class Book(db.Model):
     is_available = db.Column(db.Boolean, default=True)
     stock_quantity = db.Column(db.Integer, default=0)
     description = db.Column(db.Text)
+    price = db.Column(db.Float, default=0.0)  # Цена книги
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
