@@ -371,3 +371,39 @@ function initializeViewButtons() {
 // Инициализируем кнопки удаления и просмотра при загрузке
 initializeDeleteButtons();
 initializeViewButtons();
+function initializeDeleteButtons() {
+  document.querySelectorAll('.delete-btn').forEach(button => {
+    button.replaceWith(button.cloneNode(true));
+    const newButton = button.parentNode.querySelector
+      (`[data-book-id="${button.getAttribute('data-book-id')}"]`);
+
+    newButton.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const bookId = this.getAttribute('data-book-id');
+
+      if (confirm('Вы уверены, что хотите удалить эту книгу из коллекции?')) {
+        fetch(`/delete-book/${bookId}`, {
+          method: 'DELETE',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const card = this.closest('.col-md-4');
+            card.style.opacity = '0.5';
+            setTimeout(() => card.remove(), 300);
+            showNotification('Книга успешно удалена');
+          } else {
+            alert('Ошибка при удалении книги');
+          }
+        })
+        .catch(error => {
+          console.error('Ошибка:', error);
+          alert('Произошла ошибка при удалении книги');
+        });
+      }
+    });
+  });
+}
