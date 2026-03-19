@@ -97,5 +97,65 @@ document.querySelectorAll('.delete-btn').forEach(button => {
     }
   });
 });
+document.addEventListener('DOMContentLoaded', function() {
+  const sortForm = document.getElementById('sortForm');
+  if (sortForm) {
+    sortForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const sortBy = document.getElementById('sort_by').value;
+      const order = document.getElementById('order').value;
+
+      // AJAX‑запрос для получения отсортированных данных
+      fetch(`/my-books?sort_by=${sortBy}&order=${order}`)
+        .then(response => response.text())
+        .then(html => {
+          // Обновляем только область с книгами
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const newBooksContainer = doc.querySelector('.row');
+          document.querySelector('.row').innerHTML = newBooksContainer.innerHTML;
+
+          // Переинициализируем обработчики удаления
+          initializeDeleteButtons();
+        })
+        .catch(error => {
+          console.error('Ошибка при сортировке:', error);
+          alert('Произошла ошибка при сортировке книг');
+        });
+    });
+  }
+
+  // Функция для переинициализации кнопок удаления
+  function initializeDeleteButtons() {
+    document.querySelectorAll('.delete-btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const bookId = this.getAttribute('data-book-id');
+        if (confirm('Вы уверены, что хотите удалить эту книгу из коллекции?')) {
+          fetch(`/delete-book/${bookId}`, {
+            method: 'GET'
+          })
+          .then(response => {
+            if (response.ok) {
+              const card = this.closest('.col-md-4');
+              card.style.opacity = '0.5';
+              setTimeout(() => card.remove(), 300);
+            } else {
+              alert('Ошибка при удалении книги');
+            }
+          })
+          .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при удалении книги');
+          });
+        }
+      });
+    });
+  }
+
+  // Инициализируем кнопки удаления при загрузке
+  initializeDeleteButtons();
+});
 
 });
