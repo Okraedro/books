@@ -84,3 +84,109 @@ footer {
     font-size: 1.1rem;
   }
 }
+/* Стили для панели сортировки */
+.sort-panel {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  padding: 1rem;
+}
+
+/* Улучшение карточек при наведении */
+.book-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.3s ease;
+  transform: translateY(-2px);
+}
+
+/* Активные элементы сортировки */
+select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Анимация загрузки при сортировке */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: ' Загрузка...';
+  font-style: italic;
+  color: #6c757d;
+}
+
+/* Адаптивность панели сортировки */
+@media (max-width: 768px) {
+  .sort-form-row {
+    flex-direction: column;
+  }
+  
+  .sort-form-group {
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+}
+
+/* Стили для индикаторов сортировки */
+.sort-indicator {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.sort-asc::after {
+  content: " ↑";
+}
+
+.sort-desc::after {
+  content: " ↓";
+}
+
+/* Улучшение отображения карточек на разных экранах */
+@media (min-width: 992px) {
+  .book-card {
+    transition: transform 0.3s ease;
+  }
+  
+  .book-card:hover {
+    transform: scale(1.02);
+  }
+}
+
+/* Стили для кнопок действий в карточке */
+.card-footer .btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Индикатор активной сортировки в заголовках */
+.sort-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sort-header:hover {
+  color: #0056b3;
+}
+
+/* Стили для уведомлений при сортировке */
+.sort-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #28a745;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1050;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sort-notification.show {
+  opacity: 1;
+}
