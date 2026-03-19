@@ -22,4 +22,30 @@
   padding: 3rem 2rem;
   text-align: center;
 }
+/* Уведомления */
+.alert {
+    margin-bottom: 1rem;
+}
+
+/* Футер */
+footer {
+    margin-top: auto;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .navbar-nav {
+        text-align: center;
+        margin-top: 10px;
+    }
+    .nav-link {
+        margin: 5px 0;
+    }
+}
+
+/* Специальные стили для админа */
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
 
