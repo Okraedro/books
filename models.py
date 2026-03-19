@@ -146,3 +146,15 @@ class RentalTransaction(db.Model):
             self.end_date = self.start_date + timedelta(days=90)
         else:
             self.end_date = None
+class RentalReminder(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
+    rental_id = db.Column(db.Integer, db.ForeignKey('rental_transaction.id'), nullable=False)
+    reminder_type = db.Column(db.String(20))  # 'warning', 'expired'
+    sent_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_sent = db.Column(db.Boolean, default=False)
+
+    user = db.relationship('User', backref=db.backref('reminders', lazy=True))
+    book = db.relationship('Book', backref=db.backref('reminders', lazy=True))
+    rental = db.relationship('RentalTransaction', backref=db.backref('reminders', lazy=True))
