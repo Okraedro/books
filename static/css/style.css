@@ -49,3 +49,38 @@ footer {
     color: #212529;
 }
 
+/* Стили для страницы просмотра книги */
+.book-detail-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.book-detail-author {
+  font-size: 1.25rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.book-cover {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Улучшение карточек */
+.card.book-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+  .book-detail-title {
+    font-size: 1.75rem;
+  }
+  .book-detail-author {
+    font-size: 1.1rem;
+  }
+}
