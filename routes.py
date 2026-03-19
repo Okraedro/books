@@ -183,3 +183,74 @@ def logout():
     logout_user()
     flash('Вы успешно вышли из системы', 'success')
     return redirect(url_for('index'))
+from flask import render_template, request, redirect, url_for, flash
+from models import db, Book
+
+@app.route('/my-books')
+@login_required
+def my_books():
+    books = Book.query.order_by(Book.date_added.desc()).all()
+    return render_template('my_books.html', books=books)
+
+@app.route('/add-book', methods=['GET', 'POST'])
+@login_required
+def add_book():
+    if request.method == 'POST':
+        title = request.form['title']
+        author = request.form['author']
+        genre = request.form.get('genre', '')
+        year_published = request.form.get('year_published')
+        pages = request.form.get('pages')
+        rating = request.form.get('rating', 0.0)
+        status = request.form.get('status', 'not_started')
+        notes = request.form.get('notes', '')
+        cover_url = request.form.get('cover_url', '')
+        is_favorite = 'is_favorite' in request.form
+
+        book = Book(
+            title=title,
+            author=author,
+            genre=genre,
+            year_published=int(year_published) if year_published else None,
+            pages=int(pages) if pages else None,
+            rating=float(rating),
+            status=status,
+            notes=notes,
+            cover_url=cover_url,
+            is_favorite=is_favorite
+        )
+        db.session.add(book)
+        db.session.commit()
+        flash('Книга добавлена в коллекцию!', 'success')
+        return redirect(url_for('my_books'))
+
+    return render_template('add_book.html')
+
+@app.route('/edit-book/<int:book_id>', methods=['GET', 'POST'])
+@login_required
+def edit_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    if request.method == 'POST':
+        book.title = request.form['title']
+        book.author = request.form['author']
+        book.genre = request.form.get('genre')
+        book.year_published = int(request.form.get('year_published')) if request.form.get('year_published') else None
+        book.pages = int(request.form.get('pages')) if request.form.get('pages') else None
+        book.rating = float(request.form.get('rating'))
+        book.status = request.form.get('status')
+        book.notes = request.form.get('notes')
+        book.cover_url = request.form.get('cover_url')
+        book.is_favorite = 'is_favorite' in request.form
+        db.session.commit()
+        flash('Данные книги обновлены!', 'success')
+        return redirect(url_for('my_books'))
+    return render_template('edit_book.html', book=book)
+
+@app.route('/delete-book/<int:book_id>')
+@login_required
+def delete_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    db.session.delete(book)
+    db.session.commit()
+    flash('Книга удалена из коллекции!', 'info')
+    return redirect(url_for('my_books'))
