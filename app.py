@@ -27,3 +27,23 @@ def create_tables():
         db.session.commit()
 from routes import *
 
+# Инициализация планировщика
+scheduler = BackgroundScheduler()
+
+# Запускаем задачу проверки напоминаний каждый день в 9:00
+scheduler.add_job(
+    func=check_rental_reminders,
+    trigger='cron',
+    hour=9,
+    minute=0
+)
+
+# Запуск планировщика при старте приложения
+@app.before_first_request
+def initialize_scheduler():
+    if not scheduler.running:
+        scheduler.start()
+
+# Остановка планировщика при завершении приложения
+import atexit
+atexit.register(lambda: scheduler.shutdown())
