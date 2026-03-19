@@ -335,3 +335,51 @@ def delete_book(book_id):
 
     flash('Книга успешно удалена из коллекции', 'success')
     return redirect(url_for('my_books'))
+@app.route('/book/<int:book_id>/purchase', methods=['GET', 'POST'])
+@login_required
+def purchase_book(book_id):
+    book = Book.query.get_or_404(book_id)
+
+    if request.method == 'POST':
+        # Создаём транзакцию покупки
+        transaction = RentalTransaction(
+            user_id=current_user.id,
+            book_id=book.id,
+            transaction_type='purchase',
+            price=book.price
+        )
+        db.session.add(transaction)
+        db.session.commit()
+
+        flash('Книга успешно куплена!', 'success')
+        return redirect(url_for('view_book', book_id=book.id))
+
+    return render_template('purchase.html', book=book, transaction_type='purchase')
+
+@app.route('/book/<int:book_id>/rent', methods=['GET', 'POST'])
+@login_required
+def rent_book(book_id):
+    book = Book.query.get_or_404(book_id)
+
+    if request.method == 'POST':
+        rental_period = request.form.get('rental_period')
+
+        # Расчёт цены аренды (например, 30 % от цены книги за месяц)
+        price_multipliers = {'2_weeks': 0.15, '1_month': 0.3, '3_months': 0.7}
+        price = book.price * price_multipliers.get(rental_period, 0)
+
+        transaction = RentalTransaction(
+            user_id=current_user.id,
+            book_id=book.id,
+            transaction_type='rental',
+            rental_period=rental_period,
+            price=price
+        )
+        transaction.calculate_end_date()
+        db.session.add(transaction)
+        db.session.commit()
+
+        flash(f'Книга арендована на {rental_period.replace("_", " ")}!', 'success')
+        return redirect(url_for('view_book', book_id=book.id))
+
+    return render_template('rent.html', book=book)
