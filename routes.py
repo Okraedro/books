@@ -55,3 +55,16 @@ def admin_books():
     books = Book.query.all()
     categories = Category.query.all()
     return render_template('admin/books_management.html', books=books, categories=categories)
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password_hash, password):
+            login_user(user)
+            if user.role == 'admin':
+                return redirect(url_for('admin_dashboard'))
+            else:
+                return redirect(url_for('books'))
+    return render_template('login.html')
