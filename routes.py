@@ -322,3 +322,16 @@ def my_books():
         return jsonify({'html': books_html})
 
     return render_template('my_books.html', books=books, sort_by=sort_by, order=order)
+@app.route('/delete-book/<int:book_id>', methods=['GET', 'DELETE'])
+@login_required
+def delete_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    db.session.delete(book)
+    db.session.commit()
+
+    # Если это AJAX‑запрос, возвращаем JSON‑ответ
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'success': True})
+
+    flash('Книга успешно удалена из коллекции', 'success')
+    return redirect(url_for('my_books'))
