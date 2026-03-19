@@ -141,3 +141,45 @@ def delete_book(book_id):
   except Exception as e:
     db.session.rollback()
     return jsonify({'success': False, 'error': str(e)}), 500
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import flash, redirect, url_for
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        if password != confirm_password:
+            flash('Пароли не совпадают', 'error')
+            return render_template('register.html')
+
+        if User.query.filter_by(username=username).first():
+            flash('Пользователь с таким именем уже существует', 'error')
+            return render_template('register.html')
+
+        if User.query.filter_by(email=email).first():
+            flash('Пользователь с таким email уже существует', 'error')
+            return render_template('register.html')
+
+        user = User(
+            username=username,
+            email=email,
+            password_hash=generate_password_hash(password)
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        flash('Регистрация успешна! Теперь вы можете войти.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Вы успешно вышли из системы', 'success')
+    return redirect(url_for('index'))
