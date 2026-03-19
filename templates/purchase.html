@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Покупка книги</h2>
+  <div class="card mb-4">
+    <div class="row no-gutters">
+      <div class="col-md-4">
+        {% if book.cover_url %}
+          <img src="{{ book.cover_url }}" class="card-img" alt="{{ book.title }}">
+        {% else %}
+          <div class="card-img text-center p-5 bg-secondary text-white">Обложка отсутствует</div>
+        {% endif %}
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h3 class="card-title">{{ book.title }}</h3>
+          <p class="card-text"><strong>Автор:</strong> {{ book.author }}</p>
+          <p class="card-text"><strong>Цена:</strong> ${{ book.price }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form method="POST">
+    <p>Вы уверены, что хотите купить эту книгу за ${{ book.price }}?</p>
+    <button type="submit" class="btn btn-success">Подтвердить покупку</button>
+    <a href="{{ url_for('view_book', book_id=book.id) }}" class="btn btn-secondary">Отмена</a>
+  </form>
+</div>
+{% endblock %}
