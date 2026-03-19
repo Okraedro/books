@@ -1,0 +1,65 @@
+<div class="row">
+  {% for book in books %}
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 book-card">
+      {% if book.cover_url %}
+        <img src="{{ book.cover_url }}" class="card-img-top book-cover" alt="{{ book.title }}" style="height: 200px; object-fit: cover;">
+      {% else %}
+        <div class="card-img-top text-center p-3 bg-secondary text-white">Обложка отсутствует</div>
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-title">{{ book.title }}</h5>
+        <p class="card-text">
+          <strong>Автор:</strong> {{ book.author }}<br>
+          <strong>Жанр:</strong> {{ book.genre or 'Не указан' }}<br>
+          <strong>Год:</strong> {{ book.year_published or 'Не указан' }}<br>
+          <strong>Страниц:</strong> {{ book.pages or 'Не указано' }}<br>
+
+          <!-- Рейтинг -->
+          <strong>Рейтинг:</strong>
+          {% for i in range(book.rating|int) %}
+            <span class="text-warning">★</span>
+          {% endfor %}
+          {% if book.rating % 1 != 0 %}<span class="text-warning">½</span>{% endif %}
+          {% for i in range(5 - (book.rating|int + (1 if book.rating % 1 != 0 else 0))) %}
+            <span class="text-muted">★</span>
+          {% endfor %}<br>
+
+          <!-- Статус -->
+          <strong>Статус:</strong>
+          <span class="badge
+            {% if book.status == 'not_started' %}badge-secondary
+            {% elif book.status == 'reading' %}badge-info
+            {% elif book.status == 'finished' %}badge-success
+            {% elif book.status == 'abandoned' %}badge-warning
+            {% endif %}">
+            {% if book.status == 'not_started' %}Не начата
+            {% elif book.status == 'reading' %}Читаю сейчас
+            {% elif book.status == 'finished' %}Прочитана
+            {% elif book.status == 'abandoned' %}Заброшена
+            {% endif %}
+          </span>
+        </p>
+
+        <!-- Заметки (обрезанные) -->
+        {% if book.notes %}
+          <p><small class="text-muted">{{ book.notes[:100] }}{% if book.notes|length > 100 %}...{% endif %}</small></p>
+        {% endif %}
+
+        <!-- Метка любимой книги -->
+        {% if book.is_favorite %}
+          <p><span class="badge badge-danger">Любимая</span></p>
+        {% endif %}
+      </div>
+
+      <div class="card-footer bg-transparent border-0">
+        <div class="btn-group btn-group-sm" role="group">
+          <a href="{{ url_for('view_book', book_id=book.id) }}" class="btn btn-outline-info">Подробнее</a>
+          <a href="{{ url_for('edit_book', book_id=book.id) }}" class="btn btn-outline-primary">Редактировать</a>
+          <button class="btn btn-outline-danger delete-btn" data-book-id="{{ book.id }}">Удалить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
