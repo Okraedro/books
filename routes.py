@@ -254,3 +254,8 @@ def delete_book(book_id):
     db.session.commit()
     flash('Книга удалена из коллекции!', 'info')
     return redirect(url_for('my_books'))
+@app.route('/book/<int:book_id>')
+@login_required
+def view_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    return render_template('view_book.html', book=book)
