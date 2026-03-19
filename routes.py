@@ -383,3 +383,50 @@ def rent_book(book_id):
         return redirect(url_for('view_book', book_id=book.id))
 
     return render_template('rent.html', book=book)
+from flask import render_template, redirect, url_for, flash, request
+from flask_login import login_required, current_user
+
+@app.route('/admin/books')
+@login_required
+def admin_books():
+    if not current_user.is_admin:
+        flash('Доступ запрещён', 'error')
+        return redirect(url_for('my_books'))
+
+    books = Book.query.all()
+    return render_template('admin/books.html', books=books)
+
+@app.route('/admin/book/<int:book_id>/edit', methods=['GET', 'POST'])
+@login_required
+def admin_edit_book(book_id):
+    if not current_user.is_admin:
+        flash('Доступ запрещён', 'error')
+        return redirect(url_for('my_books'))
+
+    book = Book.query.get_or_404(book_id)
+
+    if request.method == 'POST':
+        book.title = request.form['title']
+        book.author = request.form['author']
+        book.genre = request.form['genre']
+        book.year_published = request.form['year_published']
+        book.price = float(request.form['price'])
+        book.is_available = 'is_available' in request.form
+        book.status = request.form['status']
+
+        db.session.commit()
+        flash('Книга обновлена', 'success')
+        return redirect(url_for('admin_books'))
+
+    return render_template('admin/edit_book.html', book=book)
+
+@app.route('/admin/rentals')
+@login_required
+def admin_rentals():
+    if not current_user.is_admin:
+        flash('Доступ запрещён', 'error')
+        return redirect(url_for('my_books'))
+
+    # Получаем все активные аренды с информацией о пользователях
+    rentals = RentalTransaction.query.filter_by(is_active=True).all()
+    return render_template('admin/rentals.html', rentals=rentals)
