@@ -26,6 +26,9 @@ class Book(db.Model):
     stock_quantity = db.Column(db.Integer, default=0)
     description = db.Column(db.Text)
     price = db.Column(db.Float, default=0.0)  # Цена книги
+    is_available = db.Column(db.Boolean, default=True)  # Доступность для аренды/покупки
+    status = db.Column(db.String(20), default='active')  # 'active', 'archived', 'out_of_stock'
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
